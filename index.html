@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GymBro - Campus Gym (UFV)</title>
+  <meta name="description" content="GymBro functional prototype: sign up and onboarding, live gym occupancy with simulated data, status reporting and training partner sessions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    /* Apply saved theme and text size before the first paint (no flash) */
+    try {
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("gymbro.theme") || "dark");
+      document.documentElement.setAttribute("data-textsize", localStorage.getItem("gymbro.textsize") || "medium");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- T01 Register and onboarding (Practice 3). Rendered by js/onboarding.js -->
+  <div class="onb" id="onb" hidden>
+    <main id="onb-main" class="onb__main" tabindex="-1"></main>
+  </div>
+
+  <div class="app" id="app">
+    <header class="topbar">
+      <h1 id="page-title" class="topbar__title">Campus Gym (UFV)</h1>
+      <div class="topbar__actions">
+        <button type="button" id="theme-btn" class="round-btn home-only" aria-label="Switch to light mode"><span data-icon="sun"></span></button>
+        <button type="button" id="textsize-btn" class="round-btn home-only" aria-expanded="false" aria-controls="textsize-menu" aria-label="Text size: Medium">
+          <span class="aa" aria-hidden="true">A<small>A</small></span>
+        </button>
+        <div id="textsize-menu" class="textsize-menu home-only" role="group" aria-labelledby="textsize-label" hidden>
+          <p id="textsize-label" class="eyebrow">Text size</p>
+          <button type="button" class="ts-opt" data-size="small" aria-pressed="false"><span class="ts-opt__sample" aria-hidden="true">Aa</span><span><strong>Small</strong></span><span class="ts-opt__check" data-icon="check"></span></button>
+          <button type="button" class="ts-opt" data-size="medium" aria-pressed="true"><span class="ts-opt__sample" aria-hidden="true">Aa</span><span><strong>Medium</strong><small>Recommended</small></span><span class="ts-opt__check" data-icon="check"></span></button>
+          <button type="button" class="ts-opt" data-size="big" aria-pressed="false"><span class="ts-opt__sample" aria-hidden="true">Aa</span><span><strong>Big</strong></span><span class="ts-opt__check" data-icon="check"></span></button>
+        </div>
+        <a class="avatar avatar--button" href="#profile" aria-label="Open your profile">J</a>
+      </div>
+    </header>
+
+    <main id="main" class="main" tabindex="-1">
+      <section class="view" data-view="home" aria-labelledby="page-title"></section>
+      <section class="view" data-view="facilities" aria-labelledby="page-title" hidden></section>
+      <section class="view" data-view="partners" aria-labelledby="page-title" hidden></section>
+      <section class="view" data-view="chats" aria-labelledby="page-title" hidden></section>
+      <section class="view" data-view="chat" aria-labelledby="page-title" hidden></section>
+      <section class="view" data-view="profile" aria-labelledby="page-title" hidden></section>
+    </main>
+
+    <nav class="tabbar" aria-label="Main navigation">
+      <a class="tab" href="#home" data-tab="home"><span class="tab__icon" data-icon="home"></span><span>Home</span></a>
+      <a class="tab" href="#facilities" data-tab="facilities"><span class="tab__icon" data-icon="building"></span><span>Facilities</span></a>
+      <a class="tab" href="#partners" data-tab="partners"><span class="tab__icon" data-icon="users"></span><span>Partners</span></a>
+      <a class="tab" href="#chats" data-tab="chats"><span class="tab__icon" data-icon="message"></span><span>Chats</span></a>
+      <a class="tab" href="#profile" data-tab="profile"><span class="tab__icon" data-icon="user"></span><span>Profile</span></a>
+    </nav>
+  </div>
+
+  <!-- Zone detail (Figma: "Facilities - Zone detail modal") -->
+  <dialog id="zone-dialog" class="modal" aria-labelledby="zone-title">
+    <div class="modal__head">
+      <div>
+        <h2 id="zone-title" class="modal__title">Zone</h2>
+        <p class="modal__sub">Campus Gym (UFV)</p>
+      </div>
+      <button type="button" class="icon-btn" data-close aria-label="Close zone details"><span data-icon="x"></span></button>
+    </div>
+    <div id="zone-body"></div>
+    <button type="button" class="btn btn--outline" id="zone-report-btn"><span data-icon="flag"></span>Report Status</button>
+  </dialog>
+
+  <!-- Report sheet (Figma: "Report Gym Status" / "Report Zone Status") -->
+  <dialog id="report-dialog" class="sheet" aria-labelledby="report-title">
+    <form id="report-form" novalidate>
+      <div class="modal__head">
+        <div>
+          <h2 id="report-title" class="modal__title">Report Gym Status</h2>
+          <p class="modal__sub" id="report-sub">Campus Gym (UFV) - pick the current level</p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Close report form"><span data-icon="x"></span></button>
+      </div>
+      <fieldset class="levels" aria-describedby="report-error">
+        <legend class="sr-only">Current crowd level</legend>
+        <label class="level level--free">
+          <input type="radio" name="level" value="free">
+          <span class="level__dot" aria-hidden="true"></span>
+          <span class="level__text"><strong>Free</strong><small>Plenty of space available</small></span>
+          <span class="level__radio" aria-hidden="true"></span>
+        </label>
+        <label class="level level--moderate">
+          <input type="radio" name="level" value="moderate">
+          <span class="level__dot" aria-hidden="true"></span>
+          <span class="level__text"><strong>Moderate</strong><small>Some equipment taken</small></span>
+          <span class="level__radio" aria-hidden="true"></span>
+        </label>
+        <label class="level level--full">
+          <input type="radio" name="level" value="full">
+          <span class="level__dot" aria-hidden="true"></span>
+          <span class="level__text"><strong>Full</strong><small>No space, expect a wait</small></span>
+          <span class="level__radio" aria-hidden="true"></span>
+        </label>
+      </fieldset>
+      <p class="field-error" id="report-error" role="alert"></p>
+      <button type="submit" class="btn btn--primary">Send Report <span data-icon="arrow"></span></button>
+    </form>
+  </dialog>
+
+  <!-- Confirmation (Figma: "Facilities - Thanks Modal") -->
+  <dialog id="thanks-dialog" class="modal modal--center" aria-labelledby="thanks-title" aria-describedby="thanks-text">
+    <h2 id="thanks-title" class="modal__title">Thank you!</h2>
+    <p id="thanks-text" class="modal__sub">Your report has been sent successfully.</p>
+    <button type="button" class="btn btn--outline" data-close><span data-icon="building"></span>Return</button>
+    <button type="button" id="undo-btn" class="btn btn--danger" hidden><span data-icon="undo"></span><span id="undo-label">Undo Report (5 seconds)</span></button>
+  </dialog>
+
+  <!-- Propose a session (Figma: "Messages - Propose Session modal") -->
+  <dialog id="propose-dialog" class="modal" aria-labelledby="propose-title">
+    <form id="propose-form" novalidate>
+      <div class="modal__head">
+        <div>
+          <h2 id="propose-title" class="modal__title">Propose a session</h2>
+          <p class="modal__sub" id="propose-sub">with Jason</p>
+        </div>
+        <button type="button" class="icon-btn" data-close aria-label="Close session proposal"><span data-icon="x"></span></button>
+      </div>
+      <p class="hint" id="propose-hint"></p>
+      <div class="field">
+        <label for="p-date">Date</label>
+        <input id="p-date" name="date" type="date" aria-describedby="err-date">
+        <p class="field-error" id="err-date"></p>
+      </div>
+      <div class="field">
+        <label for="p-time">Time</label>
+        <input id="p-time" name="time" type="time" step="900" aria-describedby="err-time hint-time">
+        <p class="hint hint--small" id="hint-time">Gym open 07:00 - 22:00</p>
+        <p class="field-error" id="err-time"></p>
+      </div>
+      <div class="field">
+        <label for="p-workout">Workout</label>
+        <select id="p-workout" name="workout" aria-describedby="err-workout">
+          <option value="">Choose a workout</option>
+          <option>Chest &amp; Triceps</option>
+          <option>Back &amp; Biceps</option>
+          <option>Legs</option>
+          <option>Shoulders</option>
+          <option>Full body</option>
+          <option>Cardio</option>
+        </select>
+        <p class="field-error" id="err-workout"></p>
+      </div>
+      <button type="submit" class="btn btn--primary">Send Proposal <span data-icon="arrow"></span></button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/onboarding.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
